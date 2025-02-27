@@ -9,14 +9,14 @@ const MapComponent = () => {
   const [coordinates, setCoordinates] = useState({ from: null, to: null });
   const [mapInstance, setMapInstance] = useState(null);
   const [routingControl, setRoutingControl] = useState(null);
-  const [distance, setDistance] = useState(null); // New state for distance
+  const [distance, setDistance] = useState(null);
 
   useEffect(() => {
     const map = L.map("map", { center: [20.5937, 78.9629], zoom: 5 }); // India center
     setMapInstance(map);
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
+      attribution: '&copy; OpenStreetMap contributors',
     }).addTo(map);
 
     return () => {
@@ -72,17 +72,28 @@ const MapComponent = () => {
         }
       });
 
-      // Custom destination icon
-      const destinationIcon = new L.Icon({
+      // Custom Icons for Better Visibility
+      const startIcon = new L.Icon({
         iconUrl:
-          "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+          "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png", // Blue marker
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
       });
 
-      // Add new markers
-      L.marker([coordinates.from.lat, coordinates.from.lng]).addTo(mapInstance).bindPopup("Starting Point");
+      const destinationIcon = new L.Icon({
+        iconUrl:
+          "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png", // Red for destination
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+      });
+
+      // Add markers with custom icons
+      L.marker([coordinates.from.lat, coordinates.from.lng], { icon: startIcon })
+        .addTo(mapInstance)
+        .bindPopup("Starting Point");
+
       L.marker([coordinates.to.lat, coordinates.to.lng], { icon: destinationIcon })
         .addTo(mapInstance)
         .bindPopup(`<b>Destination</b>: ${locations.to}`)
@@ -99,7 +110,7 @@ const MapComponent = () => {
         addWaypoints: false,
         fitSelectedRoutes: true,
         draggableWaypoints: false,
-        show: false, 
+        show: false,
         lineOptions: {
           styles: [{ color: "#007bff", weight: 5 }],
         },
@@ -111,13 +122,19 @@ const MapComponent = () => {
 
       // Extract distance from the route response
       routing.on("routesfound", function (e) {
-        const route = e.routes[0]; 
+        const route = e.routes[0];
         const totalDistance = (route.summary.totalDistance / 1000).toFixed(2); // Convert meters to km
         setDistance(totalDistance);
       });
 
       document.querySelector(".leaflet-routing-container")?.remove();
       setRoutingControl(routing);
+
+      // Adjust zoom to fit markers
+      mapInstance.fitBounds([
+        [coordinates.from.lat, coordinates.from.lng],
+        [coordinates.to.lat, coordinates.to.lng],
+      ]);
     }
   }, [coordinates, mapInstance]);
 
