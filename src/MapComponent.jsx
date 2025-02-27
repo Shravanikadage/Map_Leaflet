@@ -15,8 +15,8 @@ const MapComponent = () => {
     const map = L.map("map", { center: [20.5937, 78.9629], zoom: 5 }); // India center
     setMapInstance(map);
 
-    L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
-      attribution: '&copy; OpenStreetMap contributors',
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
     return () => {
@@ -75,7 +75,7 @@ const MapComponent = () => {
       // Custom Icons for Better Visibility
       const startIcon = new L.Icon({
         iconUrl:
-          "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png", // Blue marker
+          "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png", // Blue marker for starting point
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
@@ -83,7 +83,7 @@ const MapComponent = () => {
 
       const destinationIcon = new L.Icon({
         iconUrl:
-          "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png", // Red for destination
+          "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png", // Red marker for destination
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
@@ -129,12 +129,6 @@ const MapComponent = () => {
 
       document.querySelector(".leaflet-routing-container")?.remove();
       setRoutingControl(routing);
-
-      // Adjust zoom to fit markers
-      mapInstance.fitBounds([
-        [coordinates.from.lat, coordinates.from.lng],
-        [coordinates.to.lat, coordinates.to.lng],
-      ]);
     }
   }, [coordinates, mapInstance]);
 
