@@ -33,6 +33,13 @@ h1 {
   margin-top: 20px; 
 }
 
+/* Increase gap between h2 and input fields */
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 20px; /* Added space below h2 */
+  color: #333;
+}
+
 /* Map container */
 .map-container {
   display: flex;
