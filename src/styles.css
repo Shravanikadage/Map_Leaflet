@@ -36,7 +36,7 @@ h1 {
 /* Increase gap between h2 and input fields */
 h2 {
   font-size: 1.8rem;
-  margin-bottom: 20px; /* Added space below h2 */
+  margin-bottom: 10px; /* Added space below h2 */
   color: #333;
 }
 
