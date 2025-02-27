@@ -10,9 +10,10 @@ const MapComponent = () => {
   const [mapInstance, setMapInstance] = useState(null);
   const [routingControl, setRoutingControl] = useState(null);
   const [distance, setDistance] = useState(null);
+  const [prevDistance, setPrevDistance] = useState(null); // Store last computed distance
 
   useEffect(() => {
-    const map = L.map("map", { center: [20.5937, 78.9629], zoom: 5 }); // India center
+    const map = L.map("map", { center: [20.5937, 78.9629], zoom: 5 });
     setMapInstance(map);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -50,7 +51,8 @@ const MapComponent = () => {
   };
 
   const handleSearch = () => {
-    setDistance(null); // Reset distance
+    setDistance(null); // Reset distance only on search
+    setPrevDistance(null); // Reset saved distance
     getCoordinates(locations.from, "from");
     getCoordinates(locations.to, "to");
   };
@@ -58,6 +60,11 @@ const MapComponent = () => {
   const handleSwitch = () => {
     setLocations({ from: locations.to, to: locations.from });
     setCoordinates({ from: coordinates.to, to: coordinates.from });
+
+    // Preserve distance when switching
+    if (distance !== null) {
+      setPrevDistance(distance);
+    }
   };
 
   useEffect(() => {
@@ -72,10 +79,9 @@ const MapComponent = () => {
         }
       });
 
-      // Custom Icons for Better Visibility
       const startIcon = new L.Icon({
         iconUrl:
-          "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png", // Blue marker for starting point
+          "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
@@ -83,13 +89,12 @@ const MapComponent = () => {
 
       const destinationIcon = new L.Icon({
         iconUrl:
-          "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png", // Red marker for destination
+          "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
       });
 
-      // Add markers with custom icons
       L.marker([coordinates.from.lat, coordinates.from.lng], { icon: startIcon })
         .addTo(mapInstance)
         .bindPopup("Starting Point");
@@ -99,7 +104,6 @@ const MapComponent = () => {
         .bindPopup(`<b>Destination</b>: ${locations.to}`)
         .openPopup();
 
-      // Add route and extract distance
       const routing = L.Routing.control({
         waypoints: [
           L.latLng(coordinates.from.lat, coordinates.from.lng),
@@ -120,11 +124,16 @@ const MapComponent = () => {
         }),
       }).addTo(mapInstance);
 
-      // Extract distance from the route response
       routing.on("routesfound", function (e) {
         const route = e.routes[0];
-        const totalDistance = (route.summary.totalDistance / 1000).toFixed(2); // Convert meters to km
-        setDistance(totalDistance);
+        const totalDistance = (route.summary.totalDistance / 1000).toFixed(2);
+
+        // Set new distance only if switching didn't happen
+        if (prevDistance !== null) {
+          setDistance(prevDistance);
+        } else {
+          setDistance(totalDistance);
+        }
       });
 
       document.querySelector(".leaflet-routing-container")?.remove();
