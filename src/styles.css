@@ -28,7 +28,7 @@ html, body, #root {
 /* Heading */
 h1 {
   font-size: 2rem;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   color: #333;
   margin-top: 20px; 
 }
